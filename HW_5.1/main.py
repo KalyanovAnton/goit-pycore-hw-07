@@ -87,6 +87,8 @@ class AddressBook(UserDict):
             return self.data[name] 
         raise KeyError(f"Контакт з ім'ям {name} не знайдено.")
 
+
+
     def delete(self, name):
         if name in self.data:
             del self.data[name]
@@ -143,9 +145,22 @@ def parse_input(user_input):
     return cmd, args
 
 @input_error
+def get_or_create_contact(name, book):
+    try:
+        # Якщо контакт вже є, повертаємо існуючий запис
+        return book.find(name)
+    except KeyError:
+        # Якщо контакту немає, створюємо новий запис і додаємо до книги
+        new_record = Record(name)
+        book.add_record(new_record)
+        return new_record
+
+
+
+@input_error
 def add_contact(args, book):
     name, phone, *_ = args
-    record = book.find(name)
+    record = get_or_create_contact(name, book)
     message = "Contact updated."
     if record is None:
         record = Record(name)
@@ -154,6 +169,7 @@ def add_contact(args, book):
     if phone:
         record.add_phone(phone)
     return message
+
 
 @input_error
 def change_contact(args, book):
